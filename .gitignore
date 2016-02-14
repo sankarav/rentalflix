@@ -8,3 +8,7 @@
 /bin/
 /target/
 /.settings
+
+# IntelliJ Files #
+*.iml
+/.idea/
