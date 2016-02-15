@@ -22,6 +22,19 @@ public class Movie {
         this.language = builder.language;
     }
 
+    /**
+     * Deep Copy constructor. Note: String is immutable, other attributes are primitives
+     * @param src
+     */
+    public Movie(Movie src){
+        this.id = src.getId();
+        this.title = src.getTitle();
+        this.year = src.getYear();
+        this.language = src.getLanguage();
+        setRented(src.isRented());
+        setRentedUserName(src.getRentedUserName());
+    }
+
     public static class Builder{
         private final long id;
         private final String title;
@@ -86,6 +99,10 @@ public class Movie {
 
     private void setRentedUserName(String rentedUserName) {
         this.rentedUserName = rentedUserName;
+    }
+
+    public String getRentedUserName() {
+        return rentedUserName;
     }
 
     public void setRented(boolean rented) {

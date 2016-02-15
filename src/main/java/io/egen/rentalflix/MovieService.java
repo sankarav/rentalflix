@@ -23,6 +23,8 @@ public class MovieService implements IFlix {
     @Override
     public List<Movie> findAll() {
         Collection<Movie> movies = movieStore.values();
+        movies.stream().map(movie -> new Movie(movie))
+                .collect(Collectors.toList());
         return new ArrayList<>(movieStore.values());
     }
 
@@ -37,6 +39,7 @@ public class MovieService implements IFlix {
         List<Movie> results = movieStore.values()
                 .stream()
                 .filter(movie -> movie.isTitleMatch(name))
+                .map(movie -> new Movie(movie))
                 .collect(Collectors.toList());
 
         return results;
@@ -53,7 +56,8 @@ public class MovieService implements IFlix {
         if(movie == null){
             return null;
         } else {
-            return movieStore.put(movie.getId(), movie);
+            movieStore.put(movie.getId(), new Movie(movie));
+            return new Movie(movie);
         }
     }
 
@@ -65,11 +69,11 @@ public class MovieService implements IFlix {
      */
     @Override
     public Movie update(Movie movie) {
-        Movie out = movieStore.replace(movie.getId(), movie);
+        Movie out = movieStore.replace(movie.getId(), new Movie(movie));
         if(out == null) {
             throw new IllegalArgumentException("Movie ID : " + movie.getId() + " not found in DB already");
         } {
-            return out;
+            return new Movie(out);
         }
     }
 
@@ -81,7 +85,7 @@ public class MovieService implements IFlix {
      */
     @Override
     public Movie delete(int id) {
-        Movie out = movieStore.remove(id);
+        Movie out = movieStore.remove(new Long(id));
         if(out == null) {
             throw new IllegalArgumentException("Movie ID : " + id + " not found in DB already");
         } {
@@ -100,7 +104,7 @@ public class MovieService implements IFlix {
      */
     @Override
     public boolean rentMovie(int movieId, String user) {
-        Movie movieToRent = movieStore.get(movieId);
+        Movie movieToRent = movieStore.get(new Long(movieId));
         if(movieToRent != null && user != null){
             boolean rentStatus = movieToRent.rent(user);
             if(!rentStatus) {
@@ -113,12 +117,4 @@ public class MovieService implements IFlix {
         }
     }
 
-    public static void main(String[] args) {
-        IFlix rentalFlix = new MovieService();
-        rentalFlix.create(new Movie.Builder(101, "Black").year(2007).language("English").build());
-        rentalFlix.create(new Movie.Builder(102, "Black").year(2008).language("French").build());
-        rentalFlix.create(new Movie.Builder(103, "Black Hawk").year(2008).language("French").build());
-        rentalFlix.findByName("Black").stream()
-                .forEach(movie -> System.out.println(movie));
-    }
 }

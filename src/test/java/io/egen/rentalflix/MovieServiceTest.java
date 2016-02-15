@@ -61,6 +61,65 @@ public class MovieServiceTest {
         assertEquals(0, actual.size());
     }
 
+    @Test
+    public void testCreate_WithNullMovie(){
+        Movie actual = rentalFlix.create(null);
+        assertNull("Return null for null movie creation", actual);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdate_NonExistingMovie(){
+        rentalFlix.create(moviesList[0]);
+        rentalFlix.update(moviesList[1]);
+    }
+
+    @Test
+    public void testUpdate_ExistingMovie(){
+        rentalFlix.create(moviesList[0]);
+        Movie toUpdate = new Movie.Builder(100, "BlackOwl").year(2007)
+                .language("English")
+                .build();
+        Movie actual = rentalFlix.update(toUpdate);
+        assertEquals(moviesList[0].getTitle(), actual.getTitle());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDelete_NonExistingMovie(){
+        rentalFlix.delete((int) moviesList[0].getId());
+    }
+
+    @Test
+    public void testDelete_ExistingMovie(){
+        rentalFlix.create(moviesList[0]);
+        Movie actual = rentalFlix.delete((int) moviesList[0].getId());
+        assertEquals(moviesList[0].getId(), actual.getId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRentMovie_RentAlreadyRentedMovie(){
+        Movie rentedMovie = new Movie(moviesList[0]);
+        rentedMovie.rent("Bob");
+
+        rentalFlix.create(rentedMovie);
+        rentalFlix.rentMovie((int) rentedMovie.getId(), "NewUser");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRentMovie_RentForNullUser(){
+        Movie rentedMovie = new Movie(moviesList[0]);
+        rentedMovie.rent("Bob");
+
+        rentalFlix.create(rentedMovie);
+        rentalFlix.rentMovie((int) rentedMovie.getId(), null);
+    }
+
+    @Test
+    public void testRentMovie_RentNotAlreadyRentedMovie(){
+        rentalFlix.create(moviesList[0]);
+        boolean actual = rentalFlix.rentMovie((int) moviesList[0].getId(), "Bob");
+        assertTrue(actual);
+    }
+
     @After
     public void after() {
         rentalFlix = null;
